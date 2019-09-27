@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "677205891288",
+    "firebase_url": "https://soporteapp-69767.firebaseio.com",
+    "project_id": "soporteapp-69767",
+    "storage_bucket": "soporteapp-69767.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677205891288:android:5187329042f00531de1fad",
+        "android_client_info": {
+          "package_name": "cf.josedavidgiron.soportemonterrey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "677205891288-d68f3d9vdv22ta3i1lqfa8jfeogkaelh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEx8d6ht5A44EVWSWCywt3HyXFSEh5bMA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677205891288-d68f3d9vdv22ta3i1lqfa8jfeogkaelh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
