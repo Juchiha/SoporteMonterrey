@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SoporteMonterrey</string>
+    <string name="title_activity_tickets_activity">tickets_activity</string>
+    <string name="title_activity_registro">registroActivity</string>
 </resources>
