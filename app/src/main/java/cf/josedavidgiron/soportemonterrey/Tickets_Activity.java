@@ -43,6 +43,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,55 +61,23 @@ public class Tickets_Activity extends AppCompatActivity {
     private Uri uri = null;
     ProgressDialog mproProgressDialog;
     private String strNombreFoto;
-
+    private String strTipoUsuario = "Usuario";
+    private RecyclerView recycler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tickets);
 
-        final RecyclerView recycler = findViewById(R.id.idReciclerViewTIckets);
+        recycler = findViewById(R.id.idReciclerViewTIckets);
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
         /*Cargo el recicler View*/
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        getTipoUsuario();
         storage = FirebaseStorage.getInstance().getReference();
         mproProgressDialog = new ProgressDialog(this);
-        String strId = mAuth.getCurrentUser().getUid();
-        mDatabase.child("Tickets").orderByChild("strUsuario").equalTo(strId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    /* Aqui limpiamos cada que ejecutamos para que se recargue */
-                    ArrayList<FirebaseTickets> firebaseTickets = new ArrayList<>();
-                    numeroTicket = 0;
-                    for (DataSnapshot ds: dataSnapshot.getChildren()){
-                        
-                        firebaseTickets.add( new FirebaseTickets(
-                                ds.getKey(),
-                                ds.child("strMotivo").getValue().toString(),
-                                ds.child("strDesc__").getValue().toString(),
-                                ds.child("strFoto__").getValue().toString(),
-                                ds.child("strPrio__").getValue().toString(),
-                                ds.child("strDesc__").getValue().toString(),
-                                ds.child("strEstado").getValue().toString(),
-                                ds.child("strFechaC").getValue().toString(),
-                                ds.child("strFechaS").getValue().toString(),
-                                ds.child("strDireccion").getValue().toString()
-                        ));
-                        numeroTicket = numeroTicket + 1;
-                    }
 
-                    AdapterTickets adapterTickets = new AdapterTickets(firebaseTickets, Tickets_Activity.this);
-                    recycler.setAdapter(adapterTickets);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
 
         FloatingActionButton floatingActionButton = findViewById(R.id.floatingButtonNewTicket);
@@ -166,45 +136,43 @@ public class Tickets_Activity extends AppCompatActivity {
                                         mproProgressDialog.setTitle("Creando Ticket...");
                                         mproProgressDialog.setMessage("Subiendo Información de Ticket");
                                         mproProgressDialog.setCancelable(false);
-
+                                        mproProgressDialog.show();
+                                        numeroTicket = numeroTicket + 1;
                                         if(uri.equals(null)){
                                             strNombreFoto = "https://firebasestorage.googleapis.com/v0/b/soporteapp-69767.appspot.com/o/Soportes%2F175096072?alt=media&token=7972d642-3df7-42f8-a172-ccd27bf52015";
+                                            enviarDatos(strMotivo.getText().toString(),
+                                                    strDescripcion.getText().toString(),
+                                                    strPrioridad,
+                                                    strNombreFoto,
+                                                    mAuth.getCurrentUser().getUid(),
+                                                    strDireccionSoporte.getText().toString(),
+                                                    numeroTicket,
+                                                    dialog);
+                                        }else{
+                                            StorageReference filepath = storage.child("Soportes").child(uri.getLastPathSegment());
+                                            filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                    Task<Uri> uriDescargarFoto = taskSnapshot.getStorage().getDownloadUrl();
+                                                    while(!uriDescargarFoto.isComplete());
+                                                    Uri url = uriDescargarFoto.getResult();
+
+                                                    strNombreFoto = url.toString();
+
+
+                                                    //Enviar informacion al sistema
+                                                    enviarDatos(strMotivo.getText().toString(),
+                                                            strDescripcion.getText().toString(),
+                                                            strPrioridad,
+                                                            strNombreFoto,
+                                                            mAuth.getCurrentUser().getUid(),
+                                                            strDireccionSoporte.getText().toString(),
+                                                            numeroTicket,
+                                                            dialog);
+                                                }
+                                            });
                                         }
 
-                                        /*Procedemos a insertar*/
-                                        Date cDate = new Date();
-                                        String fDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
-
-                                        Map<String, String> map = new HashMap<>();
-                                        map.put("strMotivo", strMotivo.getText().toString());
-                                        map.put("strDesc__", strDescripcion.getText().toString());
-                                        map.put("strPrio__", strPrioridad);
-                                        map.put("strFoto__", strNombreFoto);
-                                        map.put("strEstado", "Abierto");
-                                        map.put("strFechaC", fDate);
-                                        map.put("strFechaS", "NA");
-                                        map.put("strUsuario",  mAuth.getCurrentUser().getUid());
-                                        map.put("strDireccion", strDireccionSoporte.getText().toString());
-                                        Log.e("foto Ticket ::> ", "strNombreFoto ::> "+strNombreFoto);
-
-                                        numeroTicket = numeroTicket + 1;
-                                        Log.e("numero Ticket ::> ", "J ::> "+numeroTicket);
-                                        String id = mAuth.getCurrentUser().getUid()+"_TN_"+ numeroTicket;
-
-                                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                                        mDatabase.child("Tickets").child(id).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task2) {
-                                                if(task2.isSuccessful()){
-
-                                                    mproProgressDialog.cancel();
-                                                    mproProgressDialog.dismiss();
-                                                    Toast.makeText(Tickets_Activity.this, "Ticket Creado con exito!", Toast.LENGTH_LONG).show();
-                                                    dialog.cancel();
-
-                                                }
-                                            }
-                                        });
                                     }
                                 }else{
                                     Toast.makeText(Tickets_Activity.this, "Son necesarios el motivo, la descripción y la direccion para crear un ticket!", Toast.LENGTH_LONG).show();
@@ -223,6 +191,74 @@ public class Tickets_Activity extends AppCompatActivity {
 
     }
 
+        private void chargeRecicler(DataSnapshot dataSnapshot){
+            ArrayList<FirebaseTickets> firebaseTickets = new ArrayList<>();
+            numeroTicket = 0;
+            for (DataSnapshot ds: dataSnapshot.getChildren()){
+                String strFoto = "https://firebasestorage.googleapis.com/v0/b/soporteapp-69767.appspot.com/o/Soportes%2F175096072?alt=media&token=7972d642-3df7-42f8-a172-ccd27bf52015";
+                if(ds.child("strFoto__").getValue() != null){
+                    strFoto = ds.child("strFoto__").getValue().toString();
+                }
+                firebaseTickets.add( new FirebaseTickets(
+                        ds.getKey(),
+                        ds.child("strMotivo").getValue().toString(),
+                        ds.child("strDesc__").getValue().toString(),
+                        strFoto,
+                        ds.child("strPrio__").getValue().toString(),
+                        ds.child("strDesc__").getValue().toString(),
+                        ds.child("strEstado").getValue().toString(),
+                        ds.child("strFechaC").getValue().toString(),
+                        ds.child("strFechaS").getValue().toString(),
+                        ds.child("strDireccion").getValue().toString()
+                ));
+                numeroTicket = numeroTicket + 1;
+            }
+
+            Collections.reverse(firebaseTickets);
+
+            AdapterTickets adapterTickets = new AdapterTickets(firebaseTickets, Tickets_Activity.this);
+            recycler.setAdapter(adapterTickets);
+        }
+    private void enviarDatos(String strMotivo, String strDescripcion, String strPrioridad, String strNombreFoto, String strId, String strDireccionSoporte, int numeroTicket, final DialogInterface dialog){
+        /*Procedemos a insertar*/
+
+
+
+        Date cDate = new Date();
+        String fDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
+        String NDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(cDate);
+
+        Map<String, String> map = new HashMap<>();
+        map.put("strMotivo", strMotivo);
+        map.put("strDesc__", strDescripcion);
+        map.put("strPrio__", strPrioridad);
+        map.put("strFoto__", strNombreFoto);
+        map.put("strEstado", "Abierto");
+        map.put("strFechaC", fDate);
+        map.put("strFechaO", NDate);
+        map.put("strFechaS", "NA");
+        map.put("strUsuario",  mAuth.getCurrentUser().getUid());
+        map.put("strDireccion", strDireccionSoporte);
+        Log.e("foto Ticket ::> ", "strNombreFoto ::> "+strNombreFoto);
+
+        Log.e("numero Ticket ::> ", "J ::> "+numeroTicket);
+        String id = mAuth.getCurrentUser().getUid()+"_TN_"+ numeroTicket;
+
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("Tickets").child(id).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task2) {
+                if(task2.isSuccessful()){
+
+                    mproProgressDialog.cancel();
+                    mproProgressDialog.dismiss();
+                    Toast.makeText(Tickets_Activity.this, "Ticket Creado con exito!", Toast.LENGTH_LONG).show();
+                    dialog.cancel();
+                }
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -237,8 +273,10 @@ public class Tickets_Activity extends AppCompatActivity {
         if(requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
             /* Validar que este perfecto */
             uri = data.getData();
-
-            StorageReference filepath = storage.child("Soportes").child(uri.getLastPathSegment());
+            /*mproProgressDialog.setTitle("");
+            mproProgressDialog.setMessage("Un momento por favor....");
+            mproProgressDialog.setCancelable(false);
+            /*StorageReference filepath = storage.child("Soportes").child(uri.getLastPathSegment());
             filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -247,8 +285,11 @@ public class Tickets_Activity extends AppCompatActivity {
                     Uri url = uriDescargarFoto.getResult();
 
                     strNombreFoto = url.toString();
+
+                    mproProgressDialog.cancel();
+                    mproProgressDialog.dismiss();
                 }
-            });
+            });*/
         }
     }
 
@@ -267,5 +308,60 @@ public class Tickets_Activity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void getTipoUsuario(){
+        /*Firebase*/
+        Log.e("Esta ::>", "seguimiento");
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        final String id = mAuth.getCurrentUser().getUid();
+        Log.e("Esta ::>", "seguimiento ::> "+ id);
+        dbRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    //String nombr_ = dataSnapshot.child("nombre").getValue().toString();
+                    strTipoUsuario = dataSnapshot.child("Rol").getValue().toString();
+                    Log.e("Esta ::>", "seguimiento ::> "+ strTipoUsuario);
+                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                    if(strTipoUsuario.equals("Usuario")) {
+                        mDatabase.child("Tickets").orderByChild("strUsuario").equalTo(id).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    /* Aqui limpiamos cada que ejecutamos para que se recargue */
+                                    chargeRecicler(dataSnapshot);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }else if(strTipoUsuario.equals("Administrador")){
+                        mDatabase.child("Tickets").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    /* Aqui limpiamos cada que ejecutamos para que se recargue */
+                                    chargeRecicler(dataSnapshot);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }
