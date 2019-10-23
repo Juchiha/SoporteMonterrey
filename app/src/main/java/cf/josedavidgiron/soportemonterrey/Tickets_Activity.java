@@ -7,7 +7,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -43,13 +42,13 @@ import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import cf.josedavidgiron.soportemonterrey.clases.AdapterTickets;
+import cf.josedavidgiron.soportemonterrey.clases.AdapterTicketsUsers;
 import cf.josedavidgiron.soportemonterrey.clases.FirebaseTickets;
 
 public class Tickets_Activity extends AppCompatActivity {
@@ -88,11 +87,11 @@ public class Tickets_Activity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder( Tickets_Activity.this);
                 LayoutInflater inflater = getLayoutInflater();
                 View vista = inflater.inflate(R.layout.new_ticket_layout, null);
-                final EditText strMotivo = vista.findViewById(R.id.txtMotivo);
-                final EditText strDescripcion = vista.findViewById(R.id.txtDescripcionTexto);
+                final EditText strMotivo = vista.findViewById(R.id.txtMotivoVista);
+                final EditText strDescripcion = vista.findViewById(R.id.txtDescripcionTextoVista);
                 final RadioButton radioPrioridad6 = vista.findViewById(R.id.radioButton6);
                 final RadioButton radioProoridad7 = vista.findViewById(R.id.radioButton7);
-                final EditText strDireccionSoporte = vista.findViewById(R.id.txtDireccionSoporte);
+                final EditText strDireccionSoporte = vista.findViewById(R.id.txtDireccionSoporteVista);
                 strPrioridad = null;
 
                 radioPrioridad6.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -138,7 +137,7 @@ public class Tickets_Activity extends AppCompatActivity {
                                         mproProgressDialog.setCancelable(false);
                                         mproProgressDialog.show();
                                         numeroTicket = numeroTicket + 1;
-                                        if(uri.equals(null)){
+                                        if(uri == null){
                                             strNombreFoto = "https://firebasestorage.googleapis.com/v0/b/soporteapp-69767.appspot.com/o/Soportes%2F175096072?alt=media&token=7972d642-3df7-42f8-a172-ccd27bf52015";
                                             enviarDatos(strMotivo.getText().toString(),
                                                     strDescripcion.getText().toString(),
@@ -191,7 +190,7 @@ public class Tickets_Activity extends AppCompatActivity {
 
     }
 
-        private void chargeRecicler(DataSnapshot dataSnapshot){
+        private void chargeRecicler(DataSnapshot dataSnapshot, String strTipo){
             ArrayList<FirebaseTickets> firebaseTickets = new ArrayList<>();
             numeroTicket = 0;
             for (DataSnapshot ds: dataSnapshot.getChildren()){
@@ -215,9 +214,15 @@ public class Tickets_Activity extends AppCompatActivity {
             }
 
             Collections.reverse(firebaseTickets);
+            if(strTipo.equals("1")){
+                AdapterTickets adapterTickets = new AdapterTickets(firebaseTickets, Tickets_Activity.this);
+                recycler.setAdapter(adapterTickets);
+            }else{
+                AdapterTicketsUsers adapterTickets = new AdapterTicketsUsers(firebaseTickets, Tickets_Activity.this);
+                recycler.setAdapter(adapterTickets);
+            }
 
-            AdapterTickets adapterTickets = new AdapterTickets(firebaseTickets, Tickets_Activity.this);
-            recycler.setAdapter(adapterTickets);
+
         }
     private void enviarDatos(String strMotivo, String strDescripcion, String strPrioridad, String strNombreFoto, String strId, String strDireccionSoporte, int numeroTicket, final DialogInterface dialog){
         /*Procedemos a insertar*/
@@ -330,7 +335,7 @@ public class Tickets_Activity extends AppCompatActivity {
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.exists()) {
                                     /* Aqui limpiamos cada que ejecutamos para que se recargue */
-                                    chargeRecicler(dataSnapshot);
+                                    chargeRecicler(dataSnapshot, "2");
                                 }
                             }
 
@@ -340,12 +345,12 @@ public class Tickets_Activity extends AppCompatActivity {
                             }
                         });
                     }else if(strTipoUsuario.equals("Administrador")){
-                        mDatabase.child("Tickets").addValueEventListener(new ValueEventListener() {
+                        mDatabase.child("Tickets").orderByChild("strFechaO").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.exists()) {
                                     /* Aqui limpiamos cada que ejecutamos para que se recargue */
-                                    chargeRecicler(dataSnapshot);
+                                    chargeRecicler(dataSnapshot, "1");
                                 }
                             }
 

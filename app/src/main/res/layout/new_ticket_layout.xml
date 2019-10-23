@@ -27,7 +27,7 @@
         android:textSize="18sp" />
 
     <EditText
-        android:id="@+id/txtMotivo"
+        android:id="@+id/txtMotivoVista"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
@@ -46,7 +46,7 @@
         android:textSize="18sp" />
 
     <EditText
-        android:id="@+id/txtDescripcionTexto"
+        android:id="@+id/txtDescripcionTextoVista"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
@@ -98,7 +98,7 @@
         android:textSize="18sp" />
 
     <EditText
-        android:id="@+id/txtDireccionSoporte"
+        android:id="@+id/txtDireccionSoporteVista"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"

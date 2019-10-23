@@ -2,8 +2,6 @@ package cf.josedavidgiron.soportemonterrey.clases;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,14 +18,12 @@ import cf.josedavidgiron.soportemonterrey.FinalActivity;
 import cf.josedavidgiron.soportemonterrey.Interfaces.ItemClickListener;
 import cf.josedavidgiron.soportemonterrey.R;
 
-public class AdapterTickets extends RecyclerView.Adapter<AdapterTickets.ViewHolder> {
-
+public class AdapterTicketsUsers extends RecyclerView.Adapter<AdapterTicketsUsers.ViewHolder> {
     private ArrayList<FirebaseTickets> ticketsSoporte;
     private Context context;
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder  {
         public TextView textFechaTicket, textEstadoTicket, textMotivo, textDescripcion, textDireccion;
         public ImageView imageTicket;
-        ItemClickListener itemClickListener;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -38,22 +34,11 @@ public class AdapterTickets extends RecyclerView.Adapter<AdapterTickets.ViewHold
             textDescripcion = itemView.findViewById(R.id.txtDescripcion);
             textDireccion = itemView.findViewById(R.id.textDireccion);
 
-            itemView.setOnClickListener(this);
-
-        }
-
-        @Override
-        public void onClick(View view) {
-            this.itemClickListener.onItemClickListener(view, getLayoutPosition());
-        }
-
-        public void setItemClickListener(ItemClickListener itemClickListener) {
-            this.itemClickListener = itemClickListener;
         }
     }
 
 
-    public AdapterTickets(ArrayList<FirebaseTickets> ticketsSoporte, Context context){
+    public AdapterTicketsUsers(ArrayList<FirebaseTickets> ticketsSoporte, Context context){
         this.ticketsSoporte = ticketsSoporte;
         this.context = context;
     }
@@ -71,7 +56,7 @@ public class AdapterTickets extends RecyclerView.Adapter<AdapterTickets.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(AdapterTicketsUsers.ViewHolder viewHolder, int i) {
         viewHolder.textFechaTicket.setText(ticketsSoporte.get(i).getStrFechaC());
         viewHolder.textEstadoTicket.setText(ticketsSoporte.get(i).getStrEstado());
         viewHolder.textMotivo.setText(ticketsSoporte.get(i).getStrMotivo());
@@ -87,7 +72,7 @@ public class AdapterTickets extends RecyclerView.Adapter<AdapterTickets.ViewHold
                 .fitCenter()
                 .centerCrop()
                 .into(viewHolder.imageTicket);
-        viewHolder.setItemClickListener(new ItemClickListener() {
+        /*viewHolder.setItemClickListener(new ItemClickListener() {
             @Override
             public void onItemClickListener(View viewVista, int intPosition) {
                 FirebaseTickets firebaseTickets = ticketsSoporte.get(intPosition);
@@ -96,7 +81,6 @@ public class AdapterTickets extends RecyclerView.Adapter<AdapterTickets.ViewHold
                 intent.putExtra("FireTickets", firebaseTickets.getStrId____());
                 context.startActivity(intent);
             }
-        });
+        });*/
     }
-
 }

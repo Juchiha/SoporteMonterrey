@@ -8,15 +8,15 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="SOPORTE MORELIA"
+        android:icon="@drawable/soportemorelia"
+        android:label="Soporte Morelia"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RegistroActivity"></activity>
+        <activity android:name=".FinalActivity"></activity>
+        <activity android:name=".RegistroActivity" />
         <activity android:name=".Tickets_Activity" />
-        <activity
-            android:name=".MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
