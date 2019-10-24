@@ -1,34 +1,42 @@
 {
   "project_info": {
-    "project_number": "677205891288",
-    "firebase_url": "https://soporteapp-69767.firebaseio.com",
-    "project_id": "soporteapp-69767",
-    "storage_bucket": "soporteapp-69767.appspot.com"
+    "project_number": "529862095100",
+    "firebase_url": "https://soportemorelia-4a9ec.firebaseio.com",
+    "project_id": "soportemorelia-4a9ec",
+    "storage_bucket": "soportemorelia-4a9ec.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:677205891288:android:5187329042f00531de1fad",
+        "mobilesdk_app_id": "1:529862095100:android:c163dc4f05b9f23ff02779",
         "android_client_info": {
           "package_name": "cf.josedavidgiron.soportemonterrey"
         }
       },
       "oauth_client": [
         {
-          "client_id": "677205891288-d68f3d9vdv22ta3i1lqfa8jfeogkaelh.apps.googleusercontent.com",
+          "client_id": "529862095100-h0tio6g8dorvkfv2geuorj7lofdk8cb0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "cf.josedavidgiron.soportemonterrey",
+            "certificate_hash": "d5bc13eaacb291673dc47933d592f229e3a0d2e7"
+          }
+        },
+        {
+          "client_id": "529862095100-5p266cpsp0s6mbnnf2dasqjabl05nme7.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAEx8d6ht5A44EVWSWCywt3HyXFSEh5bMA"
+          "current_key": "AIzaSyCT0ovw26l5gZHr79BakOSD83ZKTcmQZAM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "677205891288-d68f3d9vdv22ta3i1lqfa8jfeogkaelh.apps.googleusercontent.com",
+              "client_id": "529862095100-5p266cpsp0s6mbnnf2dasqjabl05nme7.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
