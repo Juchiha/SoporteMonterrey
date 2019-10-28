@@ -3,12 +3,16 @@ package cf.josedavidgiron.soportemonterrey;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -23,17 +27,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FinalActivity extends AppCompatActivity {
-    EditText txtMotivoVista, txtDescripcionTextoVista, txtDireccionSoporteVista, txtPrioridadTicket, txtEstadoTicket, txtNombreSolicitanteTicket, txtCorreoSolicitanteTicket;
+    EditText txtMotivoVista, txtDescripcionTextoVista, txtDireccionSoporteVista, txtPrioridadTicket, txtEstadoTicket, txtNombreSolicitanteTicket, txtCorreoSolicitanteTicket, txtFechaTicket, txtSolucionTicket;
     Button btnCambiarEstadoTicket, btnRegresarTickets;
     ImageView imageViewTickets;
     private String strFoto, strFechaCre, strFechaO, strIdUsuario;
     private String strIdTiket;
     ProgressDialog mproProgressDialog;
+    DatePickerDialog.OnDateSetListener setListener;
+    private int intYear;
+    private int intMont;
+    private int intDays;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,12 +58,45 @@ public class FinalActivity extends AppCompatActivity {
         txtNombreSolicitanteTicket = findViewById(R.id.txtNombreSolicitanteTicket);
         txtEstadoTicket = findViewById(R.id.txtEstadoTicket);
         txtCorreoSolicitanteTicket = findViewById(R.id.txtCorreoSolicitanteTicket);
+        txtFechaTicket = findViewById(R.id.txtFechaSoporte);
+        txtSolucionTicket = findViewById(R.id.txtObservacion);
         imageViewTickets = findViewById(R.id.imageViewTickets);
         btnCambiarEstadoTicket = findViewById(R.id.btnCambiarEstadoTicket);
         btnRegresarTickets = findViewById(R.id.btnRegresarTickets);
         mproProgressDialog = new ProgressDialog(this);
 
         cargarDatosTicket(strIdTiket);
+
+        Calendar calendar = Calendar.getInstance();
+        intYear = calendar.get(Calendar.YEAR);
+        intMont = calendar.get(Calendar.MONTH);
+        intDays = calendar.get(Calendar.DAY_OF_MONTH);
+
+        txtFechaTicket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(
+                        //android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        FinalActivity.this, setListener, intYear, intMont, intDays
+                );
+                //datePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                datePickerDialog.show();
+
+            }
+        });
+
+        setListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                month = month+1;
+                String mes = ""+month;
+                if(month < 10 ){
+                    mes = "0"+month;
+                }
+                String strDate = intYear+"-"+mes+"-"+intDays;
+                txtFechaTicket.setText(strDate);
+            }
+        };
 
         /*Regresar*/
         btnRegresarTickets.setOnClickListener(new View.OnClickListener() {
@@ -83,12 +125,14 @@ public class FinalActivity extends AppCompatActivity {
                 map.put("strDesc__", txtDescripcionTextoVista.getText().toString());
                 map.put("strPrio__", txtPrioridadTicket.getText().toString());
                 map.put("strFoto__", strFoto);
-                map.put("strEstado", "Cerrado");
+                map.put("strEstado", txtEstadoTicket.getText().toString());
                 map.put("strFechaC", strFechaCre);
                 map.put("strFechaO", strFechaO);
                 map.put("strFechaS", NDate);
                 map.put("strUsuario",  strIdUsuario);
                 map.put("strDireccion", txtDireccionSoporteVista.getText().toString());
+                map.put("strFechaTicket",  txtFechaTicket.getText().toString());
+                map.put("strObservacion", txtSolucionTicket.getText().toString());
 
                 DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.child("Tickets").child(strIdTiket).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -131,6 +175,15 @@ public class FinalActivity extends AppCompatActivity {
                             .centerCrop()
                             .into(imageViewTickets);
                     cargarDatosUsuario(ds.child("strUsuario").getValue().toString());
+
+                    if(ds.child("strFechaTicket").getValue() != null){
+                        txtFechaTicket.setText(ds.child("strFechaTicket").getValue().toString());
+                    }
+
+                    if(ds.child("strObservacion").getValue() != null){
+                        txtSolucionTicket.setText(ds.child("strObservacion").getValue().toString());
+                    }
+
                 }
             }
 
